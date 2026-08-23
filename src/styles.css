@@ -142,3 +142,15 @@
     color: var(--color-foreground);
   }
 }
+
+:root {
+  --ink: oklch(0.19 0.05 160);
+  --ink-2: oklch(0.24 0.05 160);
+  --gold: oklch(0.82 0.13 88);
+  --cream: oklch(0.96 0.02 90);
+}
+
+@theme inline {
+  --font-display: "Cormorant Garamond", serif;
+  --font-body: "Jost", sans-serif;
+}
