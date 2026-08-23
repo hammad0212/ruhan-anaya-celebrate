@@ -1,216 +1,182 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import heroImg from "@/assets/hero.jpg";
-
-const GROOM = "Ruhan Sayied";
-const BRIDE = "Dulhan"; // TODO: replace with the bride's name
-const WEDDING_DATE = new Date("2026-11-14T09:00:00+05:30");
+import bgImg from "@/assets/bg.jpg";
+import { BRIDE, GROOM, WEDDING_DATE, events } from "@/components/wedding/data";
+import { WelcomeGate } from "@/components/wedding/WelcomeGate";
+import { Countdown } from "@/components/wedding/Countdown";
+import { Rsvp } from "@/components/wedding/Rsvp";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: `${GROOM} & ${BRIDE} — Wedding | 14–15 Nov 2026` },
+      { title: `${GROOM} & ${BRIDE} — Wedding Invitation | 14–15 Nov 2026` },
       {
         name: "description",
         content:
-          "Join us for the Nikah at Shahe Aalam Dargah on 14 November 2026, followed by receptions at Kohinoor Farm and Anaya Farm.",
+          "Nikah at Shahe Aalam Dargah on 14 November 2026, reception at Kohinoor Farm the same evening, and Anaya Farm reception on 15 November 2026.",
       },
       { property: "og:title", content: `${GROOM} & ${BRIDE} — Wedding Invitation` },
       {
         property: "og:description",
         content:
-          "Nikah, 14 Nov 2026 at Shahe Aalam Dargah. Receptions at Kohinoor Farm (14 Nov) and Anaya Farm (15 Nov).",
+          "Join us for the Nikah and receptions on 14 & 15 November 2026 in Ahmedabad.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "/" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "/" }],
   }),
   component: Index,
 });
 
-const events = [
-  {
-    day: "14 November 2026",
-    time: "Subah / Morning",
-    title: "Nikah",
-    venue: "Shahe Aalam Dargah",
-    address: "Shahe Aalam Roza, Ahmedabad",
-    note: "The sacred ceremony — please join us for duas and blessings.",
-    map: "https://www.google.com/maps/search/?api=1&query=Shahe+Aalam+Dargah+Ahmedabad",
-  },
-  {
-    day: "14 November 2026",
-    time: "Raat / Evening",
-    title: "Reception — Bride's Side",
-    venue: "Kohinoor Farm",
-    address: "Near MD Farm, Opposite ZK Farm",
-    note: "Dinner and celebrations hosted by the bride's family.",
-    map: "https://www.google.com/maps/search/?api=1&query=Kohinoor+Farm+near+MD+Farm",
-  },
-  {
-    day: "15 November 2026",
-    time: "Raat / Evening",
-    title: "Reception — Groom's Side",
-    venue: "Anaya Farm",
-    address: "Near Ahad Sports Club",
-    note: "Dinner and celebrations hosted by the groom's family.",
-    map: "https://www.google.com/maps/search/?api=1&query=Anaya+Farm+near+Ahad+Sports+Club",
-  },
-];
-
-function useCountdown(target: Date) {
-  const [left, setLeft] = useState<number | null>(null);
-  useEffect(() => {
-    const tick = () => setLeft(target.getTime() - Date.now());
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [target]);
-  if (left === null) return null;
-  const s = Math.max(0, Math.floor(left / 1000));
-  return {
-    days: Math.floor(s / 86400),
-    hours: Math.floor((s % 86400) / 3600),
-    minutes: Math.floor((s % 3600) / 60),
-    seconds: s % 60,
-  };
-}
-
-function Divider() {
-  return (
-    <div className="flex items-center justify-center gap-3 py-6">
-      <span className="h-px w-16 bg-gradient-to-r from-transparent to-[var(--gold)]" />
-      <span className="text-[var(--gold)] text-lg">&#10022;</span>
-      <span className="h-px w-16 bg-gradient-to-l from-transparent to-[var(--gold)]" />
-    </div>
-  );
-}
-
 function Index() {
-  const c = useCountdown(WEDDING_DATE);
+  const [guest, setGuest] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setGuest(sessionStorage.getItem("wedding-guest"));
+    setReady(true);
+  }, []);
+
+  const handleEnter = (name: string) => {
+    sessionStorage.setItem("wedding-guest", name);
+    setGuest(name);
+  };
+
+  const who = guest ?? "Guest";
 
   return (
-    <main className="min-h-screen bg-[var(--ink)] text-[var(--cream)] font-body">
+    <main className="min-h-screen bg-[var(--cream)] font-body text-[var(--cocoa)]">
+      {ready && !guest && <WelcomeGate onEnter={handleEnter} />}
+
       {/* Hero */}
-      <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 text-center">
+      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 text-center">
         <img
-          src={heroImg}
-          alt="Ornate emerald and gold Islamic wedding arch"
+          src={bgImg}
+          alt="Warm candlelit wedding celebration"
           width={1536}
           height={1024}
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-[var(--ink)]/55" />
-        <div className="relative z-10 mx-auto max-w-2xl py-20">
-          <p className="font-display text-xl text-[var(--gold)]">
+        <div className="absolute inset-0 bg-[var(--cocoa)]/65" />
+        <div className="relative z-10 w-full max-w-3xl py-24">
+          <p className="animate-fade-up font-display text-xl text-[var(--gold)]">
             بِسْمِ اللَّٰهِ الرَّحْمَٰنِ الرَّحِيمِ
           </p>
-          <p className="mt-6 text-xs uppercase tracking-[0.4em] text-[var(--cream)]/70">
-            With the blessings of Allah
+          <p className="animate-fade-up mt-6 text-sm italic text-[var(--cream)]/85">
+            Dear {who}, you are warmly invited to witness…
           </p>
-          <h1 className="mt-6 font-display text-5xl leading-tight text-[var(--gold)] sm:text-7xl">
+          <h1 className="animate-fade-up mt-5 font-display text-5xl font-semibold leading-tight text-[var(--cream)] sm:text-7xl">
             {GROOM}
-            <span className="mx-3 block text-3xl italic text-[var(--cream)] sm:inline sm:text-4xl">
-              &amp;
-            </span>
+            <span className="mx-4 text-[var(--gold)]">&amp;</span>
             {BRIDE}
           </h1>
-          <Divider />
-          <p className="text-sm uppercase tracking-[0.3em] text-[var(--cream)]/80">
-            14 &amp; 15 November 2026
+          <p className="animate-fade-up mt-5 text-sm uppercase tracking-[0.3em] text-[var(--gold)]">
+            14th &amp; 15th November, 2026
           </p>
+
+          <div className="mt-10">
+            <Countdown target={WEDDING_DATE} />
+          </div>
+
           <a
-            href="#events"
-            className="mt-10 inline-block rounded-full border border-[var(--gold)] px-8 py-3 text-xs uppercase tracking-[0.25em] text-[var(--gold)] transition hover:bg-[var(--gold)] hover:text-[var(--ink)]"
+            href="#celebration"
+            className="animate-float-soft mt-12 inline-block text-xs uppercase tracking-[0.3em] text-[var(--cream)]/80"
           >
-            View Programme
+            Scroll ↓
           </a>
         </div>
       </section>
 
-      {/* Countdown */}
-      <section className="border-y border-[var(--gold)]/25 bg-[var(--ink-2)] py-14">
-        <p className="text-center text-xs uppercase tracking-[0.35em] text-[var(--cream)]/60">
-          Counting down to the Nikah
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-6 sm:gap-12">
-          {(
-            [
-              ["Days", c?.days],
-              ["Hours", c?.hours],
-              ["Minutes", c?.minutes],
-              ["Seconds", c?.seconds],
-            ] as const
-          ).map(([label, value]) => (
-            <div key={label} className="min-w-20 text-center">
-              <div className="font-display text-4xl text-[var(--gold)] sm:text-5xl">
-                {value === undefined ? "--" : String(value).padStart(2, "0")}
-              </div>
-              <div className="mt-2 text-[0.65rem] uppercase tracking-[0.3em] text-[var(--cream)]/60">
-                {label}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* Events */}
-      <section id="events" className="mx-auto max-w-5xl px-6 py-20">
-        <h2 className="text-center font-display text-4xl text-[var(--gold)] sm:text-5xl">
-          Wedding Programme
+      <section id="celebration" className="mx-auto max-w-5xl px-6 py-24">
+        <p className="text-center text-xs uppercase tracking-[0.35em] text-[var(--rose)]">
+          The Celebration
+        </p>
+        <h2 className="mt-4 text-center font-display text-4xl text-[var(--cocoa)] sm:text-5xl">
+          Dear {who}, here is what awaits you…
         </h2>
-        <Divider />
-        <div className="mt-6 grid gap-8 md:grid-cols-3">
-          {events.map((e) => (
+
+        <div className="mt-16 space-y-16">
+          {events.map((e, i) => (
             <article
               key={e.title}
-              className="flex flex-col rounded-2xl border border-[var(--gold)]/30 bg-[var(--ink-2)] p-8 text-center transition hover:border-[var(--gold)]/70"
+              className={`flex flex-col items-center gap-8 md:gap-12 ${
+                i % 2 ? "md:flex-row-reverse" : "md:flex-row"
+              }`}
             >
-              <p className="text-[0.7rem] uppercase tracking-[0.28em] text-[var(--gold)]">
-                {e.day}
-              </p>
-              <h3 className="mt-4 font-display text-3xl text-[var(--cream)]">{e.title}</h3>
-              <p className="mt-1 text-sm italic text-[var(--cream)]/70">{e.time}</p>
-              <div className="my-5 h-px bg-[var(--gold)]/25" />
-              <p className="font-display text-xl text-[var(--gold)]">{e.venue}</p>
-              <p className="mt-2 text-sm text-[var(--cream)]/75">{e.address}</p>
-              <p className="mt-4 flex-1 text-sm leading-relaxed text-[var(--cream)]/60">
-                {e.note}
-              </p>
-              <a
-                href={e.map}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-6 inline-block text-xs uppercase tracking-[0.25em] text-[var(--gold)] underline-offset-8 hover:underline"
-              >
-                Get Directions
-              </a>
+              <div className="w-full md:w-1/2">
+                <img
+                  src={e.image}
+                  alt={e.title}
+                  loading="lazy"
+                  width={1024}
+                  height={1024}
+                  className="h-72 w-full rounded-3xl object-cover shadow-lg md:h-96"
+                />
+              </div>
+              <div className="w-full text-center md:w-1/2 md:text-left">
+                <p className="text-3xl">{e.emoji}</p>
+                <p className="mt-3 text-xs uppercase tracking-[0.25em] text-[var(--rose)]">
+                  {e.date} • {e.time}
+                </p>
+                <h3 className="mt-3 font-display text-3xl text-[var(--cocoa)] sm:text-4xl">
+                  {e.title}
+                </h3>
+                <p className="mt-3 font-display text-xl text-[var(--gold)]">{e.venue}</p>
+                <p className="mt-1 text-sm text-[var(--cocoa-soft)]">{e.address}</p>
+                <p className="mt-4 text-sm leading-relaxed text-[var(--cocoa-soft)]">
+                  {e.description}
+                </p>
+                <a
+                  href={e.map}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-5 inline-block rounded-full border border-[var(--rose)] px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-[var(--rose)] transition hover:bg-[var(--rose)] hover:text-[var(--cream)]"
+                >
+                  Get Directions
+                </a>
+              </div>
             </article>
           ))}
         </div>
       </section>
 
       {/* Blessing */}
-      <section className="border-t border-[var(--gold)]/25 bg-[var(--ink-2)] px-6 py-20 text-center">
-        <p className="mx-auto max-w-2xl font-display text-2xl italic leading-relaxed text-[var(--cream)]/90 sm:text-3xl">
+      <section className="bg-[var(--cream-2)] px-6 py-24 text-center">
+        <p className="text-3xl">🕌</p>
+        <p className="mx-auto mt-6 max-w-2xl font-display text-2xl italic leading-relaxed text-[var(--cocoa)] sm:text-3xl">
           &ldquo;And among His signs is that He created for you mates from among yourselves,
-          that you may dwell in tranquillity with them, and He has put love and mercy between
-          your hearts.&rdquo;
+          that you may dwell in tranquillity with them, and He has placed love and mercy
+          between your hearts.&rdquo;
         </p>
-        <p className="mt-6 text-xs uppercase tracking-[0.3em] text-[var(--gold)]">
+        <p className="mt-6 text-xs uppercase tracking-[0.3em] text-[var(--rose)]">
           Surah Ar-Rum 30:21
         </p>
       </section>
 
-      <footer className="px-6 py-14 text-center">
-        <p className="font-display text-3xl text-[var(--gold)]">
+      {/* RSVP */}
+      <section className="mx-auto max-w-xl px-6 py-24">
+        <p className="text-center text-xs uppercase tracking-[0.35em] text-[var(--rose)]">RSVP</p>
+        <h2 className="mt-4 text-center font-display text-4xl text-[var(--cocoa)]">
+          Dear {who}, will you join us?
+        </h2>
+        <div className="mt-10">
+          <Rsvp guestName={who === "Guest" ? "" : who} />
+        </div>
+      </section>
+
+      <footer className="bg-[var(--cocoa)] px-6 py-16 text-center text-[var(--cream)]">
+        <p className="text-3xl">🪔</p>
+        <p className="mx-auto mt-5 max-w-xl text-sm italic leading-relaxed text-[var(--cream)]/80">
+          &ldquo;Agar kisi ka naam lena bhool jayein, toh dil se sabke liye mohabbat hai.&rdquo;
+        </p>
+        <p className="mt-8 font-display text-3xl text-[var(--gold)]">
           {GROOM} &amp; {BRIDE}
         </p>
-        <p className="mt-3 text-xs uppercase tracking-[0.3em] text-[var(--cream)]/55">
-          14 &amp; 15 November 2026 &middot; Ahmedabad
-        </p>
-        <p className="mt-6 text-sm text-[var(--cream)]/50">
-          Aapki dua aur hazri hamare liye qeemti hai. JazakAllah Khair.
+        <p className="mt-2 text-xs uppercase tracking-[0.3em] text-[var(--cream)]/60">
+          14 &amp; 15 November 2026 · Ahmedabad
         </p>
       </footer>
     </main>
